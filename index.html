@@ -29,8 +29,9 @@
             background-color: #45a049;
         }
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
+            padding: 10px;
         }
         label {
             font-size: 18px;
@@ -62,18 +63,20 @@
 <body>
 
 <div class="container">
-    <label for="linksInput">Введите ссылки (каждая с новой строки):</label>
+    <label for="linksInput">Вставьте ссылки (каждая с новой строки):</label>
     <textarea id="linksInput" oninput="updateLinks()"></textarea>
 
-    <div class="numbered-links" id="linksOutput" style="border: 1px solid #ccc; padding: 10px; min-height: 150px; white-space: pre-wrap;"></div>
+    <label for="linksOutput">Результат (дубликаты ссылок подсвечены красным):</label>
+    <div class="numbered-links" id="linksOutput" style="border: 1px solid #ccc; padding: 10px; min-height: 150px; white-space: pre-wrap; font-size: 12px;"></div>
 </div>
 
 <div class="container">
     <button onclick="extractNumbers()">Извлечь числа</button>
     <button id="copyBtn" onclick="copyToClipboard()">Скопировать результат</button>
-
-    <label for="numbersOutput">Результат:</label>
-    <div id="numbersOutput" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; min-height: 150px;"></div>
+<br>
+<br>
+    <label for="numbersOutput">Результат (дубликаты чисел подсвечены красным):</label>
+    <div id="numbersOutput" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; min-height: 150px; font-size: 12px;"></div>
 </div>
 
 <script>
