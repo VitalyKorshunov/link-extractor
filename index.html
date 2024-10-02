@@ -58,12 +58,23 @@
             font-weight: bold;
             margin-right: 10px;
         }
+        .clear-btn {
+            cursor: pointer;
+            color: red;
+            margin-left: 10px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <label for="linksInput">Вставьте ссылки (каждая с новой строки):</label>
+
+    <span class="clear-btn" onclick="clearFields()">Нажми сюда, чтобы очистить поле ✖</span>
+    <br>
+    <br>
+
     <textarea id="linksInput" oninput="updateLinks()"></textarea>
 
     <label for="linksOutput">Результат (дубликаты ссылок подсвечены красным):</label>
@@ -73,8 +84,8 @@
 <div class="container">
     <button onclick="extractNumbers()">Извлечь числа</button>
     <button id="copyBtn" onclick="copyToClipboard()">Скопировать результат</button>
-<br>
-<br>
+    <br>
+    <br>
     <label for="numbersOutput">Результат (дубликаты чисел подсвечены красным):</label>
     <div id="numbersOutput" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; min-height: 150px; font-size: 12px;"></div>
 </div>
@@ -142,6 +153,13 @@
         }).catch(err => {
             alert("Ошибка при копировании: " + err);
         });
+    }
+
+    // Очищаем поля ввода и вывода
+    function clearFields() {
+        document.getElementById('linksInput').value = '';
+        document.getElementById('linksOutput').innerHTML = '';
+        document.getElementById('numbersOutput').innerHTML = '';
     }
 </script>
 
