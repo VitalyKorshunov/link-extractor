@@ -125,11 +125,12 @@
         let duplicates = new Set();
         let uniqueNumbers = new Set();
 
-        // Извлекаем последние числа после символа "_"
+        // Извлекаем последние числа после символа "_" и обрезаем по "?"
         links.forEach(link => {
-            const lastUnderscoreIndex = link.lastIndexOf('_');
+            const trimmedLink = link.split('?')[0]; // Убираем часть после знака ?
+            const lastUnderscoreIndex = trimmedLink.lastIndexOf('_');
             if (lastUnderscoreIndex !== -1) {
-                const number = link.substring(lastUnderscoreIndex + 1).trim();
+                const number = trimmedLink.substring(lastUnderscoreIndex + 1).trim();
                 if (uniqueNumbers.has(number)) {
                     duplicates.add(number);
                 } else {
