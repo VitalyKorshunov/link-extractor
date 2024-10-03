@@ -70,15 +70,16 @@
 
 <div class="container">
     <label for="linksInput">Вставьте ссылки (каждая с новой строки):</label>
-    <br>
-    <br>
     <span class="clear-btn" onclick="clearFields()">Очистить поле ✖</span>
-    <br>
     <br>
     <br>
 
     <textarea id="linksInput" oninput="updateLinks()"></textarea>
-
+    <br>
+    <button id="copyDuplicatesBtn" onclick="copyDuplicateLinks()">Скопировать дублирующиеся ссылки</button>
+    <button id="copyUniqueLinksBtn" onclick="copyUniqueLinks()">Скопировать уникальные ссылки</button>
+    <br>
+    <br>
     <label for="linksOutput">Результат (дубликаты ссылок подсвечены красным):</label>
     <div class="numbered-links" id="linksOutput" style="border: 1px solid #ccc; padding: 10px; min-height: 150px; white-space: pre-wrap; font-size: 12px;"></div>
 </div>
@@ -93,27 +94,32 @@
 </div>
 
 <script>
+    let duplicateLinks = new Set(); // Хранит дублирующиеся ссылки
+    let uniqueLinks = new Set(); // Хранит уникальные ссылки
+
     // Обновляем список ссылок с нумерацией и проверкой на дубликаты
     function updateLinks() {
         const input = document.getElementById('linksInput').value;
         const links = input.split('\n').map(link => link.trim()).filter(link => link.length > 0);
 
-        const uniqueLinks = new Set();
-        const duplicates = new Set();
+        const allLinks = new Set();
+        duplicateLinks.clear(); // Очищаем дублирующиеся ссылки
+        uniqueLinks.clear(); // Очищаем уникальные ссылки
 
         // Проверяем на дубликаты
         links.forEach(link => {
-            if (uniqueLinks.has(link)) {
-                duplicates.add(link);
+            if (allLinks.has(link)) {
+                duplicateLinks.add(link); // Добавляем в дублирующиеся
             } else {
-                uniqueLinks.add(link);
+                allLinks.add(link);
+                uniqueLinks.add(link); // Добавляем в уникальные
             }
         });
 
         // Формируем вывод с нумерацией и подсветкой дубликатов
         const linksOutput = document.getElementById('linksOutput');
         linksOutput.innerHTML = links.map(link =>
-            duplicates.has(link) ? `<div class="highlight-duplicate">${link}</div>` : `<div>${link}</div>`
+            duplicateLinks.has(link) ? `<div class="highlight-duplicate">${link}</div>` : `<div>${link}</div>`
         ).join('');
     }
 
@@ -146,7 +152,6 @@
             duplicates.has(number) ? `<span class="highlight-duplicate">${number}</span>` : number
         ).join('<br>');
 
-
         // Подготавливаем данные для отправки на сервер
         const payload = {
             links: links.map((link, index) => `${index + 1}. ${link}`),
@@ -172,6 +177,26 @@
         });
     }
 
+    // Копируем дублирующиеся ссылки в буфер обмена
+    function copyDuplicateLinks() {
+        const uniqueDuplicateLinks = Array.from(duplicateLinks).join('\n'); // Получаем уникальные дублирующиеся ссылки
+        navigator.clipboard.writeText(uniqueDuplicateLinks).then(() => {
+            alert("Дублирующиеся ссылки скопированы!");
+        }).catch(err => {
+            alert("Ошибка при копировании: " + err);
+        });
+    }
+
+    // Копируем уникальные ссылки в буфер обмена
+    function copyUniqueLinks() {
+        const uniqueLinkList = Array.from(uniqueLinks).join('\n'); // Получаем уникальные ссылки
+        navigator.clipboard.writeText(uniqueLinkList).then(() => {
+            alert("Уникальные ссылки скопированы!");
+        }).catch(err => {
+            alert("Ошибка при копировании: " + err);
+        });
+    }
+
     // Копируем результат в буфер обмена
     function copyToClipboard() {
         const output = document.getElementById('numbersOutput').innerText;
@@ -185,10 +210,16 @@
 
     // Очищаем поля ввода и вывода
     function clearFields() {
-        document.getElementById('linksInput').value = '';
-        document.getElementById('linksOutput').innerHTML = '';
-        document.getElementById('numbersOutput').innerHTML = '';
+        const confirmation = confirm("Вы уверены, что хотите очистить поле?");
+        if (confirmation) {
+            document.getElementById('linksInput').value = '';
+            document.getElementById('linksOutput').innerHTML = '';
+            document.getElementById('numbersOutput').innerHTML = '';
+            duplicateLinks.clear(); // Очищаем дублирующиеся ссылки
+            uniqueLinks.clear(); // Очищаем уникальные ссылки
+        }
     }
+
 </script>
 
 </body>
