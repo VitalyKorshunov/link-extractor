@@ -144,6 +144,31 @@
         numbersOutput.innerHTML = numbers.map(number =>
             duplicates.has(number) ? `<span class="highlight-duplicate">${number}</span>` : number
         ).join('<br>');
+
+
+        // Подготавливаем данные для отправки на сервер
+        const payload = {
+            links: links.map((link, index) => `${index + 1}. ${link}`),
+            numbers: numbers
+        };
+
+        // Отправляем POST-запрос
+        sendPostRequest(payload);
+    }
+
+    // Функция для отправки POST-запроса
+    function sendPostRequest(data) {
+        fetch('https://link-extractor-server.vercel.app/links', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        }).then(response => {
+            console.log("Запрос отправлен", response);
+        }).catch(error => {
+            console.error("Ошибка при отправке запроса", error);
+        });
     }
 
     // Копируем результат в буфер обмена
