@@ -180,7 +180,7 @@
 
     // Копируем дублирующиеся ссылки в буфер обмена
     function copyDuplicateLinks() {
-        const uniqueDuplicateLinks = Array.from(duplicateLinks).join('\n'); // Получаем уникальные дублирующиеся ссылки
+        const uniqueDuplicateLinks = Array.from(duplicateLinks).join('\r'); // Получаем уникальные дублирующиеся ссылки
         navigator.clipboard.writeText(uniqueDuplicateLinks).then(() => {
             alert("Дублирующиеся ссылки скопированы!");
         }).catch(err => {
@@ -190,7 +190,7 @@
 
     // Копируем уникальные ссылки в буфер обмена
     function copyUniqueLinks() {
-        const uniqueLinkList = Array.from(uniqueLinks).join('\n'); // Получаем уникальные ссылки
+        const uniqueLinkList = Array.from(uniqueLinks).join('\r'); // Получаем уникальные ссылки
         navigator.clipboard.writeText(uniqueLinkList).then(() => {
             alert("Уникальные ссылки скопированы!");
         }).catch(err => {
