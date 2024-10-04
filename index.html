@@ -132,12 +132,13 @@
         let duplicates = new Set();
         let uniqueNumbers = new Set();
 
-        // Извлекаем последние числа после символа "_" и обрезаем по "?"
+        // Извлекаем последние числа после символа "_" и обрезаем по "?" и фильтруем только цифры
         links.forEach(link => {
             const trimmedLink = link.split('?')[0]; // Убираем часть после знака ?
             const lastUnderscoreIndex = trimmedLink.lastIndexOf('_');
             if (lastUnderscoreIndex !== -1) {
-                const number = trimmedLink.substring(lastUnderscoreIndex + 1).trim();
+                let number = trimmedLink.substring(lastUnderscoreIndex + 1).trim();
+                number = number.replace(/\D/g, ''); // Удаляем все нецифровые символы
                 if (uniqueNumbers.has(number)) {
                     duplicates.add(number);
                 } else {
