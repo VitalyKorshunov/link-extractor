@@ -59,11 +59,31 @@
             font-weight: bold;
             margin-right: 10px;
         }
+        .numbered-links div:nth-child(odd) {
+            background-color: white;
+        }
+        .numbered-links div:nth-child(even) {
+            background-color: #d3d3d3; /* светло-серый цвет */
+        }
         .clear-btn {
             cursor: pointer;
             color: red;
             margin-left: 10px;
             font-weight: bold;
+        }
+        #notification {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f44336; /* Красный цвет для уведомления */
+            color: white;
+        }
+        #duplicateLinksNotification {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f44336; /* Красный цвет для уведомления */
+            color: white;
         }
     </style>
 </head>
@@ -82,6 +102,7 @@
     <br>
     <br>
     <label for="linksOutput">Результат (дубликаты ссылок подсвечены красным):</label>
+    <div id="duplicateLinksNotification">Обнаружены дублирующиеся ссылки!</div> <!-- Уведомление о дубликатах ссылок -->
     <div class="numbered-links" id="linksOutput" style="border: 1px solid #ccc; padding: 10px; min-height: 150px; white-space: pre-wrap; font-size: 12px;"></div>
 </div>
 
@@ -91,6 +112,7 @@
     <br>
     <br>
     <label for="numbersOutput">Результат (дубликаты чисел подсвечены красным):</label>
+    <div id="notification">Обнаружены дубликаты чисел!</div> <!-- Уведомление о дубликатах чисел -->
     <div id="numbersOutput" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; min-height: 150px; font-size: 12px;"></div>
 </div>
 
@@ -122,6 +144,14 @@
         linksOutput.innerHTML = links.map(link =>
             duplicateLinks.has(link) ? `<div class="highlight-duplicate">${link}</div>` : `<div>${link}</div>`
         ).join('');
+
+        // Показываем уведомление о дубликатах ссылок, если они есть
+        const duplicateLinksNotification = document.getElementById('duplicateLinksNotification');
+        if (duplicateLinks.size > 0) {
+            duplicateLinksNotification.style.display = 'block';
+        } else {
+            duplicateLinksNotification.style.display = 'none'; // Скрыть уведомление, если дубликатов нет
+        }
     }
 
     // Извлекаем числа из ссылок и подсвечиваем дубликаты
@@ -154,6 +184,14 @@
             duplicates.has(number) ? `<span class="highlight-duplicate">${number}</span>` : number
         ).join('<br>');
 
+        // Показываем уведомление, если есть дубликаты
+        const notification = document.getElementById('notification');
+        if (duplicates.size > 0) {
+            notification.style.display = 'block';
+        } else {
+            notification.style.display = 'none'; // Скрыть уведомление, если дубликатов нет
+        }
+
         // Подготавливаем данные для отправки на сервер
         const payload = {
             links: links.map((link, index) => `${index + 1}. ${link}`),
@@ -181,69 +219,62 @@
 
     // Копируем дублирующиеся ссылки в буфер обмена
     function copyDuplicateLinks() {
-        const uniqueDuplicateLinks = Array.from(duplicateLinks).join('\n'); // Получаем уникальные дублирующиеся ссылки
+        const uniqueDuplicateLinks = Array.from(duplicateLinks);
 
-        const tempTextArea = document.createElement("textarea");
-        tempTextArea.style.position = "fixed";  // предотвращаем сдвиг страницы
-        tempTextArea.style.opacity = "0";  // делаем его невидимым
-        tempTextArea.value = uniqueDuplicateLinks;
-        document.body.appendChild(tempTextArea);
-        tempTextArea.select();
-
-        try {
-            document.execCommand('copy');
-            alert("Дублирующиеся ссылки скопированы!");
-        } catch (err) {
-            alert("Ошибка при копировании: " + err);
+        if (uniqueDuplicateLinks.length === 0) {
+            alert("Дублирующихся ссылок нет.");
+        } else {
+            navigator.clipboard.writeText(uniqueDuplicateLinks.join('\n')).then(() => {
+                alert(`Дублирующиеся ссылки скопированы! Количество: ${uniqueDuplicateLinks.length}`);
+            }).catch(err => {
+                alert("Ошибка при копировании: " + err);
+            });
         }
-
-        document.body.removeChild(tempTextArea);  // удаляем временный элемент
     }
 
     // Копируем уникальные ссылки в буфер обмена
     function copyUniqueLinks() {
-        const uniqueLinkList = Array.from(uniqueLinks).join('\n'); // Получаем уникальные ссылки
+        const uniqueLinksArray = Array.from(uniqueLinks);
 
-        const tempTextArea = document.createElement("textarea");
-        tempTextArea.style.position = "fixed";
-        tempTextArea.style.opacity = "0";
-        tempTextArea.value = uniqueLinkList;
-        document.body.appendChild(tempTextArea);
-        tempTextArea.select();
-
-        try {
-            document.execCommand('copy');
-            alert("Уникальные ссылки скопированы!");
-        } catch (err) {
-            alert("Ошибка при копировании: " + err);
+        // Проверяем, есть ли уникальные ссылки
+        if (uniqueLinksArray.length === 0) {
+            alert("Уникальных ссылок нет.");
+        } else {
+            navigator.clipboard.writeText(uniqueLinksArray.join('\n')).then(() => {
+                alert(`Уникальные ссылки скопированы! Количество: ${uniqueLinksArray.length}`);
+            }).catch(err => {
+                alert("Ошибка при копировании: " + err);
+            });
         }
-
-        document.body.removeChild(tempTextArea);
     }
 
-    // Копируем результат в буфер обмена
-    function copyToClipboard() {
-        const output = document.getElementById('numbersOutput').innerText;
 
-        navigator.clipboard.writeText(output).then(() => {
-            alert("Результат скопирован!");
+    // Копируем числа в буфер обмена
+    function copyToClipboard() {
+        const numbersOutput = document.getElementById('numbersOutput');
+        const numbers = numbersOutput.innerText.trim();
+
+        // Подсчитываем количество строк с числами
+        const numberOfLines = numbers.split('\n').filter(line => line.length > 0).length;
+
+        navigator.clipboard.writeText(numbers).then(() => {
+            alert(`Числа скопированы! Количество: ${numberOfLines}`); // Количество строк с числами
         }).catch(err => {
             alert("Ошибка при копировании: " + err);
         });
     }
 
-    // Очищаем поля ввода и вывода
-    function clearFields() {
-        const confirmation = confirm("Вы уверены, что хотите очистить поле?");
-        if (confirmation) {
-            document.getElementById('linksInput').value = '';
-            document.getElementById('linksOutput').innerHTML = '';
-            document.getElementById('numbersOutput').innerHTML = '';
-            duplicateLinks.clear(); // Очищаем дублирующиеся ссылки
-            uniqueLinks.clear(); // Очищаем уникальные ссылки
-        }
-    }
 
+    // Очищаем поля ввода
+    function clearFields() {
+        document.getElementById('linksInput').value = '';
+        document.getElementById('linksOutput').innerHTML = '';
+        document.getElementById('numbersOutput').innerHTML = '';
+        document.getElementById('notification').style.display = 'none'; // Скрываем уведомление
+        document.getElementById('duplicateLinksNotification').style.display = 'none'; // Скрываем уведомление о дубликатах ссылок
+        duplicateLinks.clear();
+        uniqueLinks.clear();
+    }
 </script>
 
 </body>
