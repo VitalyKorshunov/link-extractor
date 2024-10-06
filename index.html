@@ -11,7 +11,7 @@
         }
         textarea {
             width: 100%;
-            height: 150px;
+            height: 300px;
             margin-bottom: 20px;
             resize: none;
             white-space: nowrap;
@@ -91,13 +91,15 @@
 
 <div class="container">
     <label for="linksInput">Вставьте ссылки (каждая с новой строки):</label>
-    <span class="clear-btn" onclick="clearFields()">Очистить поле ✖</span>
+    <br>
+    <span class="clear-btn" onclick="clearFields()">Очистить все поля ✖</span>
     <br>
     <br>
 
     <textarea id="linksInput" oninput="updateLinks()"></textarea>
     <br>
     <button id="copyDuplicatesBtn" onclick="copyDuplicateLinks()">Скопировать дублирующиеся ссылки</button>
+    <br>
     <button id="copyUniqueLinksBtn" onclick="copyUniqueLinks()">Скопировать уникальные ссылки</button>
     <br>
     <br>
@@ -108,6 +110,7 @@
 
 <div class="container">
     <button onclick="extractNumbers()">Извлечь числа</button>
+    <br>
     <button id="copyBtn" onclick="copyToClipboard()">Скопировать результат</button>
     <br>
     <br>
@@ -123,14 +126,26 @@
     // Обновляем список ссылок с нумерацией и проверкой на дубликаты
     function updateLinks() {
         const input = document.getElementById('linksInput').value;
-        const links = input.split('\n').map(link => link.trim()).filter(link => link.length > 0);
+
+        // Используем регулярное выражение для поиска всех ссылок, начинающихся с 'http' или 'https'
+        // Регулярное выражение обновлено, чтобы корректно захватывать ссылки
+        const links = input.match(/https?:\/\/[^\s,"]+/g) || [];
+
+        const separatedLinks = [];
+
+        // Разделение слепленных ссылок на отдельные
+        links.forEach(link => {
+            // Используем регулярное выражение для захвата всех слепленных ссылок
+            const separated = link.split(/(?=https?:\/\/)/); // Разделяем по каждому новому 'http' или 'https'
+            separatedLinks.push(...separated);
+        });
 
         const allLinks = new Set();
         duplicateLinks.clear(); // Очищаем дублирующиеся ссылки
         uniqueLinks.clear(); // Очищаем уникальные ссылки
 
         // Проверяем на дубликаты
-        links.forEach(link => {
+        separatedLinks.forEach(link => {
             if (allLinks.has(link)) {
                 duplicateLinks.add(link); // Добавляем в дублирующиеся
             } else {
@@ -141,7 +156,7 @@
 
         // Формируем вывод с нумерацией и подсветкой дубликатов
         const linksOutput = document.getElementById('linksOutput');
-        linksOutput.innerHTML = links.map(link =>
+        linksOutput.innerHTML = separatedLinks.map(link =>
             duplicateLinks.has(link) ? `<div class="highlight-duplicate">${link}</div>` : `<div>${link}</div>`
         ).join('');
 
@@ -156,14 +171,14 @@
 
     // Извлекаем числа из ссылок и подсвечиваем дубликаты
     function extractNumbers() {
-        const links = document.getElementById('linksInput').value.split('\n').map(link => link.trim()).filter(link => link.length > 0);
+        const inputLinks = document.getElementById('linksInput').value.split('\n').map(link => link.trim()).filter(link => link.length > 0);
 
         let numbers = [];
         let duplicates = new Set();
         let uniqueNumbers = new Set();
 
         // Извлекаем последние числа после символа "_" и обрезаем по "?" и фильтруем только цифры
-        links.forEach(link => {
+        inputLinks.forEach(link => {
             const trimmedLink = link.split('?')[0]; // Убираем часть после знака ?
             const lastUnderscoreIndex = trimmedLink.lastIndexOf('_');
             if (lastUnderscoreIndex !== -1) {
@@ -192,10 +207,13 @@
             notification.style.display = 'none'; // Скрыть уведомление, если дубликатов нет
         }
 
-        // Подготавливаем данные для отправки на сервер
+        // Формируем данные для отправки на сервер
         const payload = {
-            links: links.map((link, index) => `${index + 1}. ${link}`),
-            numbers: numbers
+            links: {
+                inputLinks: inputLinks.map((link, index) => `${index + 1}. ${link}`), // Строки из поля ввода
+                outputLinks: Array.from(document.querySelectorAll('#linksOutput div')).map(el => el.textContent) // Строки из поля с результатами
+            },
+            numbers: numbers // Числа
         };
 
         // Отправляем POST-запрос
@@ -225,7 +243,7 @@
             alert("Дублирующихся ссылок нет.");
         } else {
             navigator.clipboard.writeText(uniqueDuplicateLinks.join('\n')).then(() => {
-                alert(`Дублирующиеся ссылки скопированы! Количество: ${uniqueDuplicateLinks.length}`);
+                alert(`Дублирующиеся ссылки скопированы! \nКоличество: ${uniqueDuplicateLinks.length}`);
             }).catch(err => {
                 alert("Ошибка при копировании: " + err);
             });
@@ -241,7 +259,7 @@
             alert("Уникальных ссылок нет.");
         } else {
             navigator.clipboard.writeText(uniqueLinksArray.join('\n')).then(() => {
-                alert(`Уникальные ссылки скопированы! Количество: ${uniqueLinksArray.length}`);
+                alert(`Уникальные ссылки скопированы! \nКоличество: ${uniqueLinksArray.length}`);
             }).catch(err => {
                 alert("Ошибка при копировании: " + err);
             });
