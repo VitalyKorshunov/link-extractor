@@ -44,11 +44,19 @@
             font-weight: bold;
         }
 
-        #copyBtn {
+        #copyBtnWithoutNumbers {
             background-color: #008CBA;
         }
 
-        #copyBtn:hover {
+        #copyBtnWithoutNumbers:hover {
+            background-color: #006fa3;
+        }
+
+        #copyBtnWithNumbers {
+            background-color: #008CBA;
+        }
+
+        #copyBtnWithNumbers:hover {
             background-color: #006fa3;
         }
 
@@ -101,6 +109,29 @@
             background-color: #f44336; /* Красный цвет для уведомления */
             color: white;
         }
+
+        .numbered-numbers {
+            counter-reset: number-counter;
+        }
+
+        .numbered-numbers div {
+            counter-increment: number-counter;
+        }
+
+        .numbered-numbers div::before {
+            content: counter(number-counter) ". ";
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .numbered-numbers div:nth-child(odd) {
+            background-color: white;
+        }
+
+        .numbered-numbers div:nth-child(even) {
+            background-color: #d3d3d3; /* светло-серый цвет */
+        }
+
     </style>
 </head>
 <body>
@@ -128,7 +159,10 @@
 <div class="container">
     <button onclick="extractNumbers()">Извлечь числа</button>
     <br>
-    <button id="copyBtn" onclick="copyToClipboard()">Скопировать результат</button>
+    <button id="copyBtnWithoutNumbers" onclick="copyToClipboardWithoutNumbers()">Скопировать результат без нумерации</button>
+    <br>
+    <button id="copyBtnWithNumbers" onclick="copyToClipboardWithNumbers()">Скопировать результат с нумерацией</button>
+
     <br>
     <br>
     <label for="numbersOutput">Результат (дубликаты чисел подсвечены красным):</label>
@@ -187,7 +221,7 @@
         }
     }
 
-    // Извлекаем числа из ссылок и подсвечиваем дубликаты
+    // Извлекаем числа из ссылок и подсвечиваем дубликаты с нумерацией
     function extractNumbers() {
         const inputLinks = document.getElementById('linksInput').value.split('\n').map(link => link.trim()).filter(link => link.length > 0);
 
@@ -212,8 +246,11 @@
 
         const numbersOutput = document.getElementById('numbersOutput');
         numbersOutput.innerHTML = numbers.map(number =>
-            duplicates.has(number) ? `<span class="highlight-duplicate">${number}</span>` : number
-        ).join('<br>');
+            duplicates.has(number) ? `<div class="highlight-duplicate">${number}</div>` : `<div>${number}</div>`
+        ).join('');
+
+        // Присваиваем CSS класс для нумерации чисел
+        numbersOutput.classList.add('numbered-numbers');
 
         const notification = document.getElementById('notification');
         if (duplicates.size > 0) {
@@ -280,16 +317,33 @@
     }
 
 
-    // Копируем числа в буфер обмена
-    function copyToClipboard() {
+    // Копируем числа в буфер обмена без нумерации
+    function copyToClipboardWithoutNumbers() {
         const numbersOutput = document.getElementById('numbersOutput');
-        const numbers = numbersOutput.innerText.trim();
+        const numbers = numbersOutput.innerText.trim(); // Без нумерации
 
         // Подсчитываем количество строк с числами
         const numberOfLines = numbers.split('\n').filter(line => line.length > 0).length;
 
         navigator.clipboard.writeText(numbers).then(() => {
-            alert(`Числа скопированы! Количество: ${numberOfLines}`); // Количество строк с числами
+            alert(`Числа скопированы без нумерации! Количество: ${numberOfLines}`);
+        }).catch(err => {
+            alert('Ошибка при копировании: ' + err);
+        });
+    }
+
+    // Копируем числа в буфер обмена с нумерацией
+    function copyToClipboardWithNumbers() {
+        const numbersOutput = document.getElementById('numbersOutput');
+        const numbersArray = numbersOutput.innerText.trim().split('\n');
+
+        const numberedNumbers = numbersArray.map((number, index) => `${index + 1}. ${number}`).join('\n');
+
+        // Подсчитываем количество строк с числами
+        const numberOfLines = numberedNumbers.split('\n').filter(line => line.length > 0).length;
+
+        navigator.clipboard.writeText(numberedNumbers).then(() => {
+            alert(`Числа скопированы с нумерацией! Количество: ${numberOfLines}`);
         }).catch(err => {
             alert('Ошибка при копировании: ' + err);
         });
