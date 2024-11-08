@@ -188,7 +188,7 @@
         // Разделение слепленных ссылок на отдельные
         links.forEach(link => {
             // Используем регулярное выражение для захвата всех слепленных ссылок
-            const separated = link.split(/(?=https?:\/\/)/); // Разделяем по каждому новому 'http' или 'https'
+            const separated = link.split(/(?=https?:\/\/)/).map(link => link.split('?')[0]); // Разделяем по каждому новому 'http' или 'https'
             separatedLinks.push(...separated);
         });
 
