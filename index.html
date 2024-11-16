@@ -159,7 +159,8 @@
 <div class="container">
     <button onclick="extractNumbers()">Извлечь числа</button>
     <br>
-    <button id="copyBtnWithoutNumbers" onclick="copyToClipboardWithoutNumbers()">Скопировать результат без нумерации</button>
+    <button id="copyBtnWithoutNumbers" onclick="copyToClipboardWithoutNumbers()">Скопировать результат без нумерации
+    </button>
     <br>
     <button id="copyBtnWithNumbers" onclick="copyToClipboardWithNumbers()">Скопировать результат с нумерацией</button>
 
@@ -232,7 +233,8 @@
         inputLinks.forEach(link => {
             const cleanLink = link.split('?')[0];
 
-            const tenDigitNumbers = cleanLink.match(/\d{10}(?!.*\d{10})/);
+            // const tenDigitNumbers = cleanLink.match(/\d{10}(?!.*\d{10})/);
+            const tenDigitNumbers = cleanLink.split('_').slice(-1);
             if (tenDigitNumbers) {
                 const number = tenDigitNumbers[0];
                 if (uniqueNumbers.has(number)) {
