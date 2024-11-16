@@ -135,7 +135,9 @@
     </style>
 </head>
 <body>
-
+<div class="container">
+    <p style="font-size: 10px">Версия: 1.241116 - от 16.11.2024</p>
+</div>
 <div class="container">
     <label for="linksInput">Вставьте ссылки (каждая с новой строки):</label>
     <br>
@@ -231,12 +233,10 @@
         let uniqueNumbers = new Set();
 
         inputLinks.forEach(link => {
-            const cleanLink = link.split('?')[0];
-
-            // const tenDigitNumbers = cleanLink.match(/\d{10}(?!.*\d{10})/);
-            const tenDigitNumbers = cleanLink.split('_').slice(-1);
-            if (tenDigitNumbers) {
-                const number = tenDigitNumbers[0];
+            const cleanLink = link.split('?')[0].split('_').slice(-1)[0];
+            const digitNumbers = cleanLink.match(/\d+/);
+            if (digitNumbers) {
+                const number = digitNumbers[0];
                 if (uniqueNumbers.has(number)) {
                     duplicates.add(number);
                 } else {
